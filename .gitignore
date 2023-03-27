@@ -61,3 +61,5 @@ MANIFEST
 .venv*/
 .conda*/
 .python-version
+*.pdf
+*.png
