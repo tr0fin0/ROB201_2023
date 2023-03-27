@@ -8,11 +8,20 @@ from my_robot_slam import MyRobotSlam
 
 from worlds.my_world import MyWorld
 
-import random
-    
-if __name__ == '__main__':
+
+# import random
+
+
+
+
+def main():
+    """
+    main()
+
+    """
+
     lidar_params = LidarParams()
-    lidar_params.noise_enable = True
+    # lidar_params.noise_enable = True
     # lidar_params.fov = 360
     # lidar_params.resolution = 361
     # lidar_params.max_range = 600
@@ -28,5 +37,11 @@ if __name__ == '__main__':
     my_world = MyWorld(robot=my_robot)
     simulator = Simulator(the_world=my_world,
                           use_keyboard=False)
-    
+
     simulator.run()
+
+
+
+
+if __name__ == '__main__':
+    main()
