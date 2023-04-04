@@ -35,8 +35,7 @@ def main():
 
     my_robot = MyRobotSlam(lidar_params=lidar_params, odometer_params=odometer_params)
     my_world = MyWorld(robot=my_robot)
-    simulator = Simulator(the_world=my_world,
-                          use_keyboard=False)
+    simulator = Simulator(the_world=my_world, use_keyboard=False)
 
     simulator.run()
 
