@@ -49,8 +49,8 @@ class TinySlam:
         Convert from map coordinates to world coordinates
         x_map, y_map : list of x and y coordinates in cell numbers (~pixels)
         """
-        x_world = self.x_min_world + x_map *  self.resolution
-        y_world = self.y_min_world + y_map *  self.resolution
+        x_world = self.x_min_world + x_map * self.resolution
+        y_world = self.y_min_world + y_map * self.resolution
 
         if isinstance(x_world, np.ndarray):
             x_world = x_world.astype(float)
@@ -114,13 +114,13 @@ class TinySlam:
         """
         x_px, y_px = self._conv_world_to_map(points_x, points_y)
 
-        select = np.logical_and(np.logical_and(x_px >= 0, x_px < self.x_max_map),
-                                np.logical_and(y_px >= 0, y_px < self.y_max_map))
+        select = np.logical_and(
+            np.logical_and(x_px >= 0, x_px < self.x_max_map),
+            np.logical_and(y_px >= 0, y_px < self.y_max_map))
         x_px = x_px[select]
         y_px = y_px[select]
 
         self.occupancy_map[x_px, y_px] += val
-
 
     def score(self, lidar, pose):
         """
@@ -186,15 +186,26 @@ class TinySlam:
         """
 
         plt.cla()
-        plt.imshow(self.occupancy_map.T, origin='lower',
-                   extent=[self.x_min_world, self.x_max_world, self.y_min_world, self.y_max_world])
+        plt.imshow(self.occupancy_map.T,
+                   origin='lower',
+                   extent=[
+                       self.x_min_world, self.x_max_world, self.y_min_world,
+                       self.y_max_world
+                   ])
         plt.clim(-4, 4)
         plt.axis("equal")
 
         delta_x = np.cos(robot_pose[2]) * 10
         delta_y = np.sin(robot_pose[2]) * 10
-        plt.arrow(robot_pose[0], robot_pose[1], delta_x, delta_y,
-                  color='red', head_width=5, head_length=10, )
+        plt.arrow(
+            robot_pose[0],
+            robot_pose[1],
+            delta_x,
+            delta_y,
+            color='red',
+            head_width=5,
+            head_length=10,
+        )
 
         # plt.show()
         plt.pause(0.001)
@@ -221,8 +232,11 @@ class TinySlam:
         # print("robot_pose", robot_pose)
         pt1 = (int(pt1_x), int(pt1_y))
         pt2 = (int(pt2_x), int(pt2_y))
-        cv2.arrowedLine(img=img2, pt1=pt1, pt2=pt2,
-                        color=(0, 0, 255), thickness=2)
+        cv2.arrowedLine(img=img2,
+                        pt1=pt1,
+                        pt2=pt2,
+                        color=(0, 0, 255),
+                        thickness=2)
         cv2.imshow("map slam", img2)
         cv2.waitKey(1)
 
@@ -232,20 +246,26 @@ class TinySlam:
         filename : base name (without extension) of file on disk
         """
 
-        plt.imshow(self.occupancy_map.T, origin='lower',
-                   extent=[self.x_min_world, self.x_max_world,
-                           self.y_min_world, self.y_max_world])
+        plt.imshow(self.occupancy_map.T,
+                   origin='lower',
+                   extent=[
+                       self.x_min_world, self.x_max_world, self.y_min_world,
+                       self.y_max_world
+                   ])
         plt.clim(-4, 4)
         plt.axis("equal")
         plt.savefig(filename + '.png')
 
         with open(filename + ".p", "wb") as fid:
-            pickle.dump({'occupancy_map': self.occupancy_map,
-                         'resolution': self.resolution,
-                         'x_min_world': self.x_min_world,
-                         'x_max_world': self.x_max_world,
-                         'y_min_world': self.y_min_world,
-                         'y_max_world': self.y_max_world}, fid)
+            pickle.dump(
+                {
+                    'occupancy_map': self.occupancy_map,
+                    'resolution': self.resolution,
+                    'x_min_world': self.x_min_world,
+                    'x_max_world': self.x_max_world,
+                    'y_min_world': self.y_min_world,
+                    'y_max_world': self.y_max_world
+                }, fid)
 
     def load(self, filename):
         """
@@ -259,11 +279,11 @@ class TinySlam:
         # Remove after TP1
 
         ranges = np.random.rand(3600)
-        ray_angles = np.arange(-np.pi,np.pi,np.pi/1800)
+        ray_angles = np.arange(-np.pi, np.pi, np.pi / 1800)
 
         # Poor implementation of polar to cartesian conversion
         points = []
         for i in range(3600):
             pt_x = ranges[i] * np.cos(ray_angles[i])
             pt_y = ranges[i] * np.sin(ray_angles[i])
-            points.append([pt_x,pt_y])
+            points.append([pt_x, pt_y])
