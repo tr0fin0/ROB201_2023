@@ -6,6 +6,8 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
+OCCUPANCY_MAX = +1.0
+OCCUPANCY_MIN = -1.0
 
 class TinySlam:
     """Simple occupancy grid SLAM"""
@@ -166,6 +168,33 @@ class TinySlam:
         pose : [x, y, theta] nparray, corrected pose in world coordinates
         """
         # TODO for TP3
+        # get lidar values, robot referencial
+        distances = lidar.get_sensor_values()   # 
+        angles = lidar.get_ray_angles()         # angles in radiums
+
+        # get array of bool's where the lidar found obstacules
+        isObstacule = distances < lidar.max_range
+
+        # get robot's position, odometer referencial (robot's initial position)
+        x_0 = pose[0]
+        y_0 = pose[1]
+        angle_0 = pose[2]
+
+        # get lidar values, odometer referencial
+        x = distances * np.cos(angles + angle_0) + x_0
+        y = distances * np.sin(angles + angle_0) + y_0
+
+        # change points values to high values, obstacul
+        self.add_map_points(x[isObstacule], y[isObstacule], +0.35)  # modèle simple
+
+        # change points values to low values, free path
+        for x, y in zip(x, y):
+            self.add_map_line(x_0, y_0, x, y, -0.1)
+
+        # set upper and lower limit of point's value
+        self.occupancy_map[self.occupancy_map >= OCCUPANCY_MAX] = OCCUPANCY_MAX
+        self.occupancy_map[self.occupancy_map <  OCCUPANCY_MIN] = OCCUPANCY_MIN
+
 
 
     def plan(self, start, goal):
