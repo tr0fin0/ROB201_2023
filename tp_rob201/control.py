@@ -84,6 +84,7 @@ def potential_field_control(lidar, pose, goal):
     pose : [x, y, theta] nparray, current pose in odom or world frame
     goal : [x, y, theta] nparray, target pose in odom or world frame
     """
+
     # * TP2
     distances = lidar.get_sensor_values()   # 
     angles = lidar.get_ray_angles()         # angles in radiums
