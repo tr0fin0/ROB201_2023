@@ -58,7 +58,11 @@ class MyRobotSlam(RobotAbstract):
             self.tiny_slam.display2(self.odometer_values())
 
         # Compute new command speed to perform obstacle avoidance
-        command = reactive_obst_avoid(self.lidar())
-        # command = potential_field_control(self.lidar(), self.corrected_pose, np.array([0,0,0]))
+        isReactive = True
+
+        if isReactive is True:
+            command = reactive_obst_avoid(self.lidar())
+        else:
+            command = potential_field_control(self.lidar(), self.odometer_values(), np.array([0.0, -200.0, 0]))
 
         return command
