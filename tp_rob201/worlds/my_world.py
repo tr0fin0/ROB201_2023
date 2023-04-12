@@ -1,3 +1,13 @@
+"""
+origin in the center of world window:
+    x+: right
+    y+: upwards
+
+following functions convert from robot position to absolute world position
+    true_position()
+    true_angle()
+"""
+
 import math
 import random
 from typing import Type, Union
