@@ -205,11 +205,36 @@ class TinySlam:
         lidar : placebot object with lidar data
         odom : [x, y, theta] nparray, raw odometry position
         """
-        # TODO for TP4
+        # * TP4
 
-        best_score = 0
+        # initialize score with the reference position
+        bestScore = self.score(lidar, self.odom_pose_ref)
+        bestRef = self.odom_pose_ref
 
-        return best_score
+        # search for a better score by random variations
+        i = 0
+        N = 250
+        while i < N:
+            # random value following a gaussien distribution
+            # angle is more sensible, use smaller offset
+            # offsets should be changed by hand
+            offset = []
+            offset.append(np.random.normal(0.0, 0.10))
+            offset.append(np.random.normal(0.0, 0.10))
+            offset.append(np.random.normal(0.0, 0.01))
+            newRef = bestRef + offset
+
+            # add offset to reference
+            odomOffset = self.get_corrected_pose(odom, newRef)
+            offsetScore = self.score(lidar, odomOffset)
+
+            if offsetScore > bestScore:
+                bestScore = offsetScore
+                bestRef = newRef
+
+            i += 1
+
+        return bestScore
 
     def update_map(self, lidar, pose):
         """
