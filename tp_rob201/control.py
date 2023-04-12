@@ -71,7 +71,7 @@ def reactive_obst_avoid(lidar):
     """
     # * TP1 Code
 
-    minClearance = 40.0
+    minClearance = 50.0
     # return reactiveFront(lidar, minClearance)
     # return reactiveRange(lidar, minClearance)
     return reactiveWallFollow(lidar, minClearance)
