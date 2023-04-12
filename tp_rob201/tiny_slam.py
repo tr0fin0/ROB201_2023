@@ -153,9 +153,13 @@ class TinySlam:
 
         xObsMap, yObsMap = self._conv_world_to_map(xObs, yObs)
 
-        xObsMap = xObsMap[xObsMap <= self.x_max_map]
-        yObsMap = yObsMap[yObsMap <= self.y_max_map]
+        # keep only values inside the map
+        isValidX = xObsMap < self.x_max_map
+        isValidY = yObsMap < self.y_max_map
 
+        xObsMap = xObsMap[isValidX * isValidY]
+        yObsMap = yObsMap[isValidX * isValidY]
+        # is possible for a variable be inside and another outside
         score = np.sum(self.occupancy_map[xObsMap, yObsMap])
 
         return score
