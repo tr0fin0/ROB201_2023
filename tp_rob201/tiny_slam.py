@@ -157,7 +157,11 @@ class TinySlam:
         xObsMap = xObsMap[isValidX * isValidY]
         yObsMap = yObsMap[isValidX * isValidY]
         # is possible for a variable be inside and another outside
+        # therefore a point will be consider only with both x and y are inside with "and" operation
+
+        # sum the occupancy of obstacules points
         score = np.sum(self.occupancy_map[xObsMap, yObsMap])
+        # TODO refactor calculation
 
         return score
 
