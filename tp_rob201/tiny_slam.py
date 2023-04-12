@@ -167,7 +167,7 @@ class TinySlam:
         lidar : placebot object with lidar data
         pose : [x, y, theta] nparray, corrected pose in world coordinates
         """
-        # TODO for TP3
+        # * TP3
         # get lidar values, robot referencial
         distances = lidar.get_sensor_values()   # 
         angles = lidar.get_ray_angles()         # angles in radiums
@@ -184,12 +184,12 @@ class TinySlam:
         x = distances * np.cos(angles + angle_0) + x_0
         y = distances * np.sin(angles + angle_0) + y_0
 
-        # change points values to high values, obstacul
+        # increase points values, obstacule
         self.add_map_points(x[isObstacule], y[isObstacule], +0.35)  # modèle simple
 
-        # change points values to low values, free path
+        # decrease points values, free path
         for x, y in zip(x, y):
-            self.add_map_line(x_0, y_0, x, y, -0.1)
+            self.add_map_line(x_0, y_0, x, y, -0.10)
 
         # set upper and lower limit of point's value
         self.occupancy_map[self.occupancy_map >= OCCUPANCY_MAX] = OCCUPANCY_MAX
