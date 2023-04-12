@@ -130,9 +130,33 @@ class TinySlam:
         lidar : placebot object with lidar data
         pose : [x, y, theta] nparray, position of the robot to evaluate, in world coordinates
         """
-        # TODO for TP4
+        # * TP4
+        # get lidar values, robot referencial
+        distances = lidar.get_sensor_values()   # 
+        angles = lidar.get_ray_angles()         # angles in radiums
 
-        score = 0
+        # get array of bool's where the lidar found obstacules
+        isObstacule = distances < lidar.max_range
+
+        # get robot's position, odometer referencial (robot's initial position)
+        x_0 = pose[0]
+        y_0 = pose[1]
+        angle_0 = pose[2]
+
+        # get lidar values, odometer referencial
+        x = distances * np.cos(angles + angle_0) + x_0
+        y = distances * np.sin(angles + angle_0) + y_0
+
+        # get positions with obstacules
+        xObs = x[isObstacule]
+        yObs = y[isObstacule]
+
+        xObsMap, yObsMap = self._conv_world_to_map(xObs, yObs)
+
+        xObsMap = xObsMap[xObsMap <= self.x_max_map]
+        yObsMap = yObsMap[yObsMap <= self.y_max_map]
+
+        score = np.sum(self.occupancy_map[xObsMap, yObsMap])
 
         return score
 
