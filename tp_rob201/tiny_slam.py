@@ -189,7 +189,7 @@ class TinySlam:
         x0 = odom[0]
         y0 = odom[1]
         angle0 = odom[2]
-        d = np.sqrt(x0^2 + y0^2)
+        d = np.sqrt(x0**2 + y0**2)
 
         # convert absolute map position
         corrected_pose = []
