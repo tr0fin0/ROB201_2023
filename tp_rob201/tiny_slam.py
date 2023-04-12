@@ -144,8 +144,25 @@ class TinySlam:
         odom_pose_ref : optional, origin of the odom frame if given,
                         use self.odom_pose_ref if not given
         """
-        # TODO for TP4
-        corrected_pose = odom_pose
+        # * TP4
+        if odom_pose_ref is None:
+            odom_ref = self.odom_pose_ref
+        else:
+            odom_ref = odom_pose_ref
+
+        xR = odom_ref[0]
+        yR = odom_ref[1]
+        angleR = odom_ref[2]
+
+        x0 = odom[0]
+        y0 = odom[1]
+        angle0 = odom[2]
+        d = np.sqrt(x0^2 + y0^2)
+
+        corrected_pose = []
+        corrected_pose[0] = xR + d * np.cos(angle0 + angleR)
+        corrected_pose[1] = yR + d * np.sin(angle0 + angleR)
+        corrected_pose[2] = np.arctan(yR / xR)
 
         return corrected_pose
 
