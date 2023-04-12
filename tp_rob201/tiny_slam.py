@@ -174,20 +174,24 @@ class TinySlam:
                         use self.odom_pose_ref if not given
         """
         # * TP4
+        # 
         if odom_pose_ref is None:
             odom_ref = self.odom_pose_ref
         else:
             odom_ref = odom_pose_ref
 
+        # odometer origin
         xR = odom_ref[0]
         yR = odom_ref[1]
         angleR = odom_ref[2]
 
+        # robot position
         x0 = odom[0]
         y0 = odom[1]
         angle0 = odom[2]
         d = np.sqrt(x0^2 + y0^2)
 
+        # convert absolute map position
         corrected_pose = []
         corrected_pose[0] = xR + d * np.cos(angle0 + angleR)
         corrected_pose[1] = yR + d * np.sin(angle0 + angleR)
