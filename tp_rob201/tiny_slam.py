@@ -193,9 +193,9 @@ class TinySlam:
 
         # convert absolute map position
         corrected_pose = []
-        corrected_pose[0] = xR + d * np.cos(angle0 + angleR)
-        corrected_pose[1] = yR + d * np.sin(angle0 + angleR)
-        corrected_pose[2] = np.arctan(yR / xR)
+        corrected_pose.append(xR + d * np.cos(angle0 + angleR))
+        corrected_pose.append(yR + d * np.sin(angle0 + angleR))
+        corrected_pose.append(np.arctan(yR / xR))
 
         return corrected_pose
 
