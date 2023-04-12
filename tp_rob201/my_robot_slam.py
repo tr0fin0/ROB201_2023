@@ -19,6 +19,9 @@ from control import reactive_obst_avoid
 from control import potential_field_control
 
 
+SCORE_MIN = +25
+
+
 # Definition of our robot controller
 class MyRobotSlam(RobotAbstract):
     """A robot controller including SLAM, path planning and path following"""
@@ -51,9 +54,20 @@ class MyRobotSlam(RobotAbstract):
         """
         self.counter += 1
 
-        self.tiny_slam.compute()
-        self.tiny_slam.update_map(self.lidar(), self.odometer_values())
-        
+        # self.tiny_slam.compute()
+        # self.tiny_slam.update_map(self.lidar(), self.odometer_values())
+
+
+        # if self.counter == 0:
+        #     self.tiny_slam.update_map(self.lidar(), self.odometer_values())
+        # else:
+        bestScore = self.tiny_slam.localise((self.lidar()), self.odometer_values())
+
+        if bestScore > SCORE_MIN:
+            self.tiny_slam.update_map(self.lidar(), self.corrected_pose)
+        else:
+            self.tiny_slam.update_map(self.lidar(), self.odometer_values())
+
         if self.counter % 1 == 0:
             self.tiny_slam.display2(self.odometer_values())
 
