@@ -20,16 +20,13 @@ def distFOV(lidar, start: int, end: int):
 
 
 def reactiveRange(lidar, minClearance: float):
-    distances = lidar.get_sensor_values()   # distance in cm
     frontIndex = 180
-    rangeSize = 30
+    rangeSize = 60
 
     start = int(frontIndex-rangeSize/2)
     end = int(frontIndex+rangeSize/2)
 
-    rangeValue = np.mean(distances[start:end])
-
-    if rangeValue >= minClearance:
+    if distFOV(lidar, start, end) >= minClearance:
         return {"forward": +0.25, "rotation": 0.00}
     else:
         return {"forward": +0.00, "rotation": random.uniform(-1, +1)}
