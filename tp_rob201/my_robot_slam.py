@@ -1,6 +1,11 @@
 """
 Robot controller definition
 Complete controller including SLAM, planning, path following
+
+origin in orange part:
+    x+: frontwards
+    y+: leftwards
+    theta: zero pointing frontwards
 """
 import numpy as np
 
