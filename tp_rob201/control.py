@@ -4,6 +4,9 @@ import numpy as np
 import random
 
 
+DIST_MIN = 50
+ROBOT_SIZE = 10
+
 def reactiveFront(lidar, minClearance: float):
     distances = lidar.get_sensor_values()   # distance in cm
     frontIndex = 180
@@ -89,17 +92,22 @@ def potential_field_control(lidar, pose, goal):
     distances = lidar.get_sensor_values()   # 
     angles = lidar.get_ray_angles()         # angles in radiums
 
-    indexMin = np.argmin(distances)
+    K = 1
+    diff = goal[:2] - pose[:2]
+    dist = np.sqrt(diff[0]**2 + diff[1]**2)
 
-    x = distances * np.cos(np.radians(angles))
-    y = distances * np.sin(np.radians(angles))
-    # poseLidar = [x, y, angles]
-    # print(f'{poseLidar[0][0]} {poseLidar[1][0]} {poseLidar[2][0]}')
-    # print(f'{distances[0]} {angles[0]}')
-                  
-    K_goal = 1
-    dfx = K_goal * (poseLidar) / np.argmin(distances)
+    if dist > DIST_MIN:
+        dF = K * diff / dist
 
-    command = {"forward": 0, "rotation": 0}
+    elif dist > ROBOT_SIZE:
+        dF = K * diff / DIST_MIN
+
+    else:
+        return {"forward": 0, "rotation": 0}
+
+    mag = np.sqrt(dF[0]**2 + dF[1]**2)
+    ang = (np.arctan2(dF[1], dF[0]) - pose[2]) / (2*np.pi)
+
+    command = {"forward": 0.25*mag, "rotation": ang}
 
     return command
