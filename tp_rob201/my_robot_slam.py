@@ -64,19 +64,23 @@ class MyRobotSlam(RobotAbstract):
         bestScore = self.tiny_slam.localise((self.lidar()), self.odometer_values())
 
         if bestScore > SCORE_MIN:
-            self.tiny_slam.update_map(self.lidar(), self.corrected_pose)
+            print(f"{bestScore:+.4e}   corrected")
+            # self.tiny_slam.update_map(self.lidar(), self.corrected_pose)
+            self.tiny_slam.update_map(self.lidar(), self.corrected_pose + self.odometer_values())
         else:
+            print(f"{bestScore:+.4e} uncorrected")
             self.tiny_slam.update_map(self.lidar(), self.odometer_values())
 
         if self.counter % 1 == 0:
             self.tiny_slam.display2(self.odometer_values())
 
         # Compute new command speed to perform obstacle avoidance
-        isReactive = True
+        # isReactive = True
+        isReactive = False
 
         if isReactive is True:
             command = reactive_obst_avoid(self.lidar())
         else:
-            command = potential_field_control(self.lidar(), self.odometer_values(), np.array([0.0, -200.0, 0]))
+            command = potential_field_control(self.lidar(), self.odometer_values(), np.array([-100.0, -400.0, 0]))
 
         return command
