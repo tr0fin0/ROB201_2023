@@ -4,8 +4,9 @@ import numpy as np
 import random
 
 
-DIST_MIN = 50
-ROBOT_SIZE = 10
+DST_SAFE = 175
+DST_LIM = 100
+DST_MIN = 25
 
 def reactiveFront(lidar, minClearance: float):
     distances = lidar.get_sensor_values()   # distance in cm
