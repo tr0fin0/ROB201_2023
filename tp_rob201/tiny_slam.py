@@ -160,7 +160,9 @@ class TinySlam:
         # therefore a point will be consider only with both x and y are inside with "and" operation
 
         # sum the occupancy of obstacules points
-        score = np.sum(self.occupancy_map[xObsMap, yObsMap])
+        mapValues = self.occupancy_map[xObsMap, yObsMap]
+        score = np.sum(np.log(mapValues) / (1 - np.log(mapValues)))
+        score = np.sum((mapValues))
         # TODO refactor calculation
 
         return score
@@ -193,9 +195,20 @@ class TinySlam:
 
         # convert absolute map position
         corrected_pose = []
-        corrected_pose.append(xR + d * np.cos(angle0 + angleR))
-        corrected_pose.append(yR + d * np.sin(angle0 + angleR))
-        corrected_pose.append(np.arctan(yR / xR))
+        # corrected_pose.append(xR + d * np.cos(angle0 + angleR))
+        # corrected_pose.append(yR + d * np.sin(angle0 + angleR))
+        # corrected_pose.append(np.arctan(yR / xR))
+
+        xC = xR + d * np.cos(angle0 + angleR)
+        yC = yR + d * np.sin(angle0 + angleR)
+
+        # xC = xR + x0
+        # yC = yR + y0
+
+        corrected_pose.append(xC)
+        corrected_pose.append(yC)
+        corrected_pose.append(np.arctan2(yC, xC))
+
 
         return corrected_pose
 
@@ -219,8 +232,8 @@ class TinySlam:
             # angle is more sensible, use smaller offset
             # offsets should be changed by hand
             offset = []
-            offset.append(np.random.normal(0.0, 0.10))
-            offset.append(np.random.normal(0.0, 0.10))
+            offset.append(np.random.normal(0.0, 10))
+            offset.append(np.random.normal(0.0, 10))
             offset.append(np.random.normal(0.0, 0.01))
             newRef = bestRef + offset
 
