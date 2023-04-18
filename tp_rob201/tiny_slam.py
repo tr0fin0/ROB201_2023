@@ -198,7 +198,9 @@ class TinySlam:
         x0 = odom[0]
         y0 = odom[1]
         angle0 = odom[2]
-        d = np.sqrt(x0**2 + y0**2)
+        # d = np.sqrt(x0**2 + y0**2)
+        d = np.sqrt(xR**2 + yR**2)
+        # d = np.sqrt((x0-xR)**2 + (y0-yR)**2)
 
         # convert absolute map position
         corrected_pose = []
@@ -208,13 +210,17 @@ class TinySlam:
 
         xC = xR + d * np.cos(angle0 + angleR)
         yC = yR + d * np.sin(angle0 + angleR)
+        # xC = x0 + d * np.cos(angleR - angle0)
+        # yC = y0 + d * np.sin(angleR - angle0)
+
 
         # xC = xR + x0
         # yC = yR + y0
 
         corrected_pose.append(xC)
         corrected_pose.append(yC)
-        corrected_pose.append(np.arctan2(yC, xC))
+        corrected_pose.append(np.arctan2(y0, x0))
+        # corrected_pose.append(+angleR - np.arctan2(+yC, +xC))
 
 
         return corrected_pose
