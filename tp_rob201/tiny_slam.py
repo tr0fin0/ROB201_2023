@@ -4,6 +4,7 @@ import pickle
 
 import cv2
 import numpy as np
+import heapq
 from matplotlib import pyplot as plt
 
 OCCUPANCY_MAX = +1.0
@@ -318,6 +319,13 @@ class TinySlam:
 
         return x, y
 
+
+    def heuristic(self, a, b):
+        # unfolding coordinates
+        x0, y0 = a
+        x1, y1 = b
+
+        return np.sqrt( (x1 - x0)**2 + (y1 - y0)**2 )
 
 
     def plan(self, start, goal):
