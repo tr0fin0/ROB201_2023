@@ -299,6 +299,26 @@ class TinySlam:
         self.occupancy_map[self.occupancy_map <  OCCUPANCY_MIN] = OCCUPANCY_MIN
 
 
+    def get_neighbors(self, current):
+        # get k closests neighbors in the map
+
+        mapMatrix = self.occupancy_map
+
+        k = 8 # number of closests neighbors
+        indices = np.argpartition(mapMatrix.ravel(), k)[:k]
+
+        # getting neighbors indexes
+        x, y = np.unravel_index(indices, mapMatrix.shape)
+
+        # # alternative with heapq
+        # mapArray = [(mapMatrix[i, j], i, j) for i in range(mapMatrix.shape[0]) for j in range(mapMatrix.shape[1])]
+
+        # # get the k smallest elements and their indices
+        # closestNeighbors = heapq.nsmallest(k, mapArray, key=lambda x: x[0])
+
+        return x, y
+
+
 
     def plan(self, start, goal):
         """
