@@ -19,7 +19,7 @@ from control import reactive_obst_avoid
 from control import potential_field_control
 
 
-SCORE_MIN = +25
+SCORE_MIN = +15
 
 
 # Definition of our robot controller
@@ -36,6 +36,8 @@ class MyRobotSlam(RobotAbstract):
 
         # step counter to deal with init and display
         self.counter = 0
+        # array of calculates scores used for debug
+        self.array_score = []
 
         # Init SLAM object
         self._size_area = (800, 800)
@@ -62,25 +64,30 @@ class MyRobotSlam(RobotAbstract):
         #     self.tiny_slam.update_map(self.lidar(), self.odometer_values())
         # else:
         bestScore = self.tiny_slam.localise((self.lidar()), self.odometer_values())
+        print(f"score: {bestScore:+.4e}")
 
         if bestScore > SCORE_MIN:
-            print(f"{bestScore:+.4e}   corrected")
-            # self.tiny_slam.update_map(self.lidar(), self.corrected_pose)
-            self.tiny_slam.update_map(self.lidar(), self.corrected_pose + self.odometer_values())
+            self.tiny_slam.update_map(self.lidar(), self.corrected_pose)
+            # self.tiny_slam.update_map(self.lidar(), self.corrected_pose + self.odometer_values())
         else:
-            print(f"{bestScore:+.4e} uncorrected")
             self.tiny_slam.update_map(self.lidar(), self.odometer_values())
 
         if self.counter % 1 == 0:
             self.tiny_slam.display2(self.odometer_values())
 
         # Compute new command speed to perform obstacle avoidance
-        # isReactive = True
         isReactive = False
 
         if isReactive is True:
             command = reactive_obst_avoid(self.lidar())
         else:
             command = potential_field_control(self.lidar(), self.odometer_values(), np.array([-100.0, -400.0, 0]))
+
+        # studying score behavior to determine it's threshold
+        self.array_score.append(bestScore)
+        if self.counter % 24 == 0:
+            print(f'score mean: {np.mean(self.array_score):4.4f} {np.max(self.array_score):4.4f} {np.min(self.array_score):4.4f}')
+            self.array_score = []
+        # this is only needed during setup, afterwards the lines can be commented
 
         return command
