@@ -160,10 +160,17 @@ class TinySlam:
         # therefore a point will be consider only with both x and y are inside with "and" operation
 
         # sum the occupancy of obstacules points
-        mapValues = self.occupancy_map[xObsMap, yObsMap]
-        score = np.sum(np.log(mapValues) / (1 - np.log(mapValues)))
-        score = np.sum((mapValues))
-        # TODO refactor calculation
+        mapMatrix = self.occupancy_map[xObsMap, yObsMap]
+
+        # score between [-360, +360]
+        # worst case: all points are not obstacules and they are all equal to OCCUPANCY_MIN
+        # best  case: all points are     obstacules and they are all equal to OCCUPANCY_MAX
+
+        # as the lidar has 360 measuares, OCCUPANCY_MAX = +1 and OCCUPANCY_MIN = -1
+        # worst case: 360*-1 = -360
+        # best  case: 360*+1 = +360
+        # note that this values change according to the global constants chosen
+        score = np.sum((mapMatrix))
 
         return score
 
