@@ -234,20 +234,22 @@ class TinySlam:
         # * TP4
 
         # initialize score with the reference position
-        bestScore = self.score(lidar, self.odom_pose_ref)
-        bestRef = self.odom_pose_ref
+        bestScore = self.score(lidar, odom)
+        bestRef = odom
+
 
         # search for a better score by random variations
         i = 0
-        N = 250
+        N = 5*1e2
+        # execution with N bigger makes system slower
         while i < N:
             # random value following a gaussien distribution
             # angle is more sensible, use smaller offset
             # offsets should be changed by hand
             offset = []
-            offset.append(np.random.normal(0.0, 10))
-            offset.append(np.random.normal(0.0, 10))
-            offset.append(np.random.normal(0.0, 0.01))
+            offset.append(np.random.normal(0.0, 25))
+            offset.append(np.random.normal(0.0, 25))
+            offset.append(np.random.normal(0.0, 2.5))
             newRef = bestRef + offset
 
             # add offset to reference
