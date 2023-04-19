@@ -190,13 +190,17 @@ class TinySlam:
                         use self.odom_pose_ref if not given
         """
         # * TP4
-        # 
+
         if odom_pose_ref is None:
             odom_ref = self.odom_pose_ref
         else:
             odom_ref = odom_pose_ref
 
         # odometer origin
+        # x0 = odom_ref[0]
+        # y0 = odom_ref[1]
+        # angle0 = odom_ref[2]
+
         xR = odom_ref[0]
         yR = odom_ref[1]
         angleR = odom_ref[2]
@@ -205,30 +209,24 @@ class TinySlam:
         x0 = odom[0]
         y0 = odom[1]
         angle0 = odom[2]
-        # d = np.sqrt(x0**2 + y0**2)
-        d = np.sqrt(xR**2 + yR**2)
-        # d = np.sqrt((x0-xR)**2 + (y0-yR)**2)
+
+        # xR = odom[0]
+        # yR = odom[1]
+        # angleR = odom[2]
+
+        distance = np.sqrt(x0**2 + y0**2)
 
         # convert absolute map position
         corrected_pose = []
-        # corrected_pose.append(xR + d * np.cos(angle0 + angleR))
-        # corrected_pose.append(yR + d * np.sin(angle0 + angleR))
-        # corrected_pose.append(np.arctan(yR / xR))
 
-        xC = xR + d * np.cos(angle0 + angleR)
-        yC = yR + d * np.sin(angle0 + angleR)
-        # xC = x0 + d * np.cos(angleR - angle0)
-        # yC = y0 + d * np.sin(angleR - angle0)
-
-
-        # xC = xR + x0
-        # yC = yR + y0
+        xC = xR + distance * np.cos(angle0 + angleR)
+        yC = yR + distance * np.sin(angle0 + angleR)
+        # xC = distance * np.cos(angle0)
+        # yC = distance * np.sin(angle0)
 
         corrected_pose.append(xC)
         corrected_pose.append(yC)
-        corrected_pose.append(np.arctan2(y0, x0))
-        # corrected_pose.append(+angleR - np.arctan2(+yC, +xC))
-
+        corrected_pose.append(np.arctan2(yC, xC))
 
         return corrected_pose
 
