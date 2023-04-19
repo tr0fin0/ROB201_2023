@@ -77,8 +77,8 @@ def reactive_obst_avoid(lidar):
 
     minClearance = 50.0
     # return reactiveFront(lidar, minClearance)
-    # return reactiveRange(lidar, minClearance)
-    return reactiveWallFollow(lidar, minClearance)
+    return reactiveRange(lidar, minClearance)
+    # return reactiveWallFollow(lidar, minClearance)
 
 
 def potential_field_control(lidar, pose, goal):
@@ -94,10 +94,10 @@ def potential_field_control(lidar, pose, goal):
     atr_diff = goal[:2] - pose[:2]
     atr_dist = np.sqrt(atr_diff[0]**2 + atr_diff[1]**2)
 
-    if atr_dist > DST_LIM:
-        atr_dF = atr_K * atr_diff / atr_dist
+    # if atr_dist > DST_LIM:
+    #     atr_dF = atr_K * atr_diff / atr_dist
 
-    elif atr_dist > DST_MIN:
+    if atr_dist > DST_MIN:
         atr_dF = atr_K * atr_diff / DST_LIM
 
     else:
@@ -105,7 +105,6 @@ def potential_field_control(lidar, pose, goal):
         return command
 
     atr_mag = np.sqrt(atr_dF[0]**2 + atr_dF[1]**2)
-    atr_ang = (np.arctan2(atr_dF[1], atr_dF[0]) - pose[2]) / (2*np.pi)
 
 
     distances = lidar.get_sensor_values()   # 
@@ -133,7 +132,7 @@ def potential_field_control(lidar, pose, goal):
         obst.append(minDst * np.cos(minAng + angle_0) + x_0)
         obst.append(minDst * np.sin(minAng + angle_0) + y_0)
     else:
-        print("errorrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
+        # no obstacule found
         obst = [0, 0]
 
     rep_K = 0.45e6
@@ -147,30 +146,18 @@ def potential_field_control(lidar, pose, goal):
     else:
         rep_dF = [0, 0]
 
+    # rep_dF = (rep_dF - np.min(rep_dF)) / (np.max(rep_dF) - np.min(rep_dF))
+
     # rep_dF = np.linalg.norm(rep_dF)
     rep_mag = np.sqrt(rep_dF[0]**2 + rep_dF[1]**2)
-    rep_ang = (np.arctan2(rep_dF[1], rep_dF[0]) - pose[2]) / (2*np.pi)
 
     dF = (atr_dF - rep_dF) / (atr_mag + rep_mag)
     mag = np.sqrt(dF[0]**2 + dF[1]**2)
     ang = (np.arctan2(dF[1], dF[0]) - pose[2]) / (2*np.pi)
 
-    # mag = (atr_mag + )
-    # forward = 0.25*atr_mag + 0.25*rep_mag
-    # rotation = 0.85*atr_ang + 0.15*rep_ang
+    forward  = 0.275*mag
+    rotation = 1.000*ang
 
-    forward = 0.30*mag
-    rotation = 0.975*ang
-
-    # print(" ")
-    # print(f'{atr_dist:4.4f} {rep_dist:4.4f}')
-    # print(f"{[f'{x:+4.4f}' for x in atr_dF]} {[f'{x:+4.4f}' for x in rep_dF]}")
-    # print(f"{[f'{x:+4.4f}' for x in atr_diff]} {[f'{x:+4.4f}' for x in rep_diff]}")
-    # print(f"{atr_mag:+4.4f} {atr_ang:+4.4f} {rep_mag:+4.4f} {rep_ang:+4.4f}")
-    # print(" ")
-    # print(f"{[f'{x:+4.4f}' for x in dF]}")
-    # print(f"{forward:+4.4f} {rotation:+4.4f}")
-    # print("___"*35)
     command = {"forward": forward, "rotation": rotation}
 
     return command
