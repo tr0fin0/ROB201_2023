@@ -157,6 +157,12 @@ class TinySlam:
 
         xObsMap = xObsMap[isValidX * isValidY]
         yObsMap = yObsMap[isValidX * isValidY]
+
+        isValidX = 0 <= xObsMap
+        isValidY = 0 <= yObsMap
+
+        xObsMap = xObsMap[isValidX * isValidY]
+        yObsMap = yObsMap[isValidX * isValidY]
         # is possible for a variable be inside and another outside
         # therefore a point will be consider only with both x and y are inside with "and" operation
 
