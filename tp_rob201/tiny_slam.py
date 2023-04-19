@@ -296,7 +296,7 @@ class TinySlam:
 
         # decrease points values, free path
         for x, y in zip(x, y):
-            self.add_map_line(x_0, y_0, x, y, -0.10)
+            self.add_map_line(x_0, y_0, x-1, y-1, -0.10)
 
         # set upper and lower limit of point's value
         self.occupancy_map[self.occupancy_map >= OCCUPANCY_MAX] = OCCUPANCY_MAX
