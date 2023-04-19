@@ -64,11 +64,11 @@ class MyRobotSlam(RobotAbstract):
         #     self.tiny_slam.update_map(self.lidar(), self.odometer_values())
         # else:
         bestScore = self.tiny_slam.localise((self.lidar()), self.odometer_values())
-        print(f"score: {bestScore:+.4e}")
 
         if bestScore > SCORE_MIN:
-            self.tiny_slam.update_map(self.lidar(), self.corrected_pose)
-            # self.tiny_slam.update_map(self.lidar(), self.corrected_pose + self.odometer_values())
+            # self.tiny_slam.update_map(self.lidar(), self.corrected_pose)
+            # self.tiny_slam.update_map(self.lidar(), self.corrected_pose)
+            self.tiny_slam.update_map(self.lidar(), self.tiny_slam.get_corrected_pose(self.odometer_values()))
         else:
             self.tiny_slam.update_map(self.lidar(), self.odometer_values())
 
@@ -84,10 +84,11 @@ class MyRobotSlam(RobotAbstract):
             command = potential_field_control(self.lidar(), self.odometer_values(), np.array([-100.0, -400.0, 0]))
 
         # studying score behavior to determine it's threshold
-        self.array_score.append(bestScore)
-        if self.counter % 24 == 0:
-            print(f'score mean: {np.mean(self.array_score):4.4f} {np.max(self.array_score):4.4f} {np.min(self.array_score):4.4f}')
-            self.array_score = []
+        # print(f"score: {bestScore:+.4e}")
+        # self.array_score.append(bestScore)
+        # if self.counter % 24 == 0:
+        #     print(f'score mean: {np.mean(self.array_score):4.4f} {np.max(self.array_score):4.4f} {np.min(self.array_score):4.4f}')
+        #     self.array_score = []
         # this is only needed during setup, afterwards the lines can be commented
 
         return command
