@@ -192,42 +192,37 @@ class TinySlam:
         """
         # * TP4
 
+        # initialize reference with not given
         if odom_pose_ref is None:
-            odom_ref = self.odom_pose_ref
-        else:
-            odom_ref = odom_pose_ref
+            odom_pose_ref = self.odom_pose_ref
 
-        # odometer origin
-        # x0 = odom_ref[0]
-        # y0 = odom_ref[1]
-        # angle0 = odom_ref[2]
+        # odometer original reference
+        x_odom_ref = odom_pose_ref[0]
+        y_odom_ref = odom_pose_ref[1]
+        ang_odom_ref = odom_pose_ref[2]
 
-        xR = odom_ref[0]
-        yR = odom_ref[1]
-        angleR = odom_ref[2]
+        # robot position in his odometer reference
+        x_odom = odom[0]
+        y_odom = odom[1]
+        ang_odom = odom[2]
 
-        # robot position
-        x0 = odom[0]
-        y0 = odom[1]
-        angle0 = odom[2]
+        # distance travelled by the robot
+        distance = np.sqrt(x_odom**2 + y_odom**2)
 
-        # xR = odom[0]
-        # yR = odom[1]
-        # angleR = odom[2]
-
-        distance = np.sqrt(x0**2 + y0**2)
+        # angle turned by the robot in relation of the odometer origin
+        ang_rotation = np.arctan2(y_odom, x_odom)
 
         # convert absolute map position
         corrected_pose = []
 
-        xC = xR + distance * np.cos(angle0 + angleR)
-        yC = yR + distance * np.sin(angle0 + angleR)
-        # xC = distance * np.cos(angle0)
-        # yC = distance * np.sin(angle0)
+        x_corrected = x_odom_ref + distance * np.cos(ang_rotation + ang_odom_ref)
+        y_corrected = y_odom_ref + distance * np.sin(ang_rotation + ang_odom_ref)
 
-        corrected_pose.append(xC)
-        corrected_pose.append(yC)
-        corrected_pose.append(np.arctan2(yC, xC))
+        corrected_pose.append(x_corrected)
+        corrected_pose.append(y_corrected)
+        corrected_pose.append(ang_odom + ang_odom_ref)
+        # as angles are measure in relation of it's last reference their sum
+        # will be in relation of the world reference
 
         return corrected_pose
 
