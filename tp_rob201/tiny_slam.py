@@ -339,10 +339,11 @@ class TinySlam:
 
     def heuristic(self, a, b):
         # unfolding coordinates
-        x0, y0 = a
+        x_odom, y_odom = a
         x1, y1 = b
 
-        return np.sqrt( (x1 - x0)**2 + (y1 - y0)**2 )
+        # euclidian distance
+        return np.sqrt( (x1 - x_odom)**2 + (y1 - y_odom)**2 )
 
 
     def plan(self, start, goal):
@@ -351,6 +352,66 @@ class TinySlam:
         start : [x, y, theta] nparray, start pose in world coordinates
         goal : [x, y, theta] nparray, goal pose in world coordinates
         """
+        # initialize the open and closed sets
+        # start_node = (start_x, start_y)
+        # start_index = (np.ravel_multi_index(start_node, shape=graph.shape))
+
+        # open_set = [start_index]
+        # closed_set = set()
+
+        # # initialize the path dictionary
+        # path = {start: None}
+
+        # # initialize the cost dictionary
+        # cost = {start: 0}
+
+        # # loop until the open set is empty
+        # while open_set:
+        #     # get the node with the smallest f-score from the open set
+        #     current_cost, current_node = heapq.heappop(open_set)
+
+        #     # if goal is reached
+        #     if current_node == goal:
+        #         path_list = []
+
+        #         while current_node:
+        #             path_list.append(current_node)
+        #             current_node = path[current_node]
+                
+        #         path_list.reverse()
+
+        #         return path_list
+
+        #     # add the current node to closed set
+        #     closed_set.add(current_node)
+
+        #     # loop through the neighbors of the current node
+        #     for neighbor in graph[current_node]:
+        #         # if neighbor is in the closed set, skip it
+        #         if neighbor in closed_set:
+        #             continue
+
+        #         # calculate the tentative cost to reach the neighbor
+        #         tentative_cost = cost[current_node] + 1
+
+        #         # if neighbor is not in the open set, add it
+        #         if neighbor not in cost or tentative_cost < cost[neighbor]:
+        #             cost[neighbor] = tentative_cost
+
+        #             f_score = tentative_cost + heuristic(neighbor, goal)
+
+        #             heapq.heappush(open_set, (f_score, neighbor))
+
+        #             path_indices = [goal_index] + path_indices
+        #             path_coords = np.unravel_index(path_indices, shape=graph.shape)
+
+        #             path = list(zip(path_coords[0], path_coords[1]))
+
+        #             # path[neighbor] = current_node
+
+        # # exhausted all possibilities, no path avaliable
+        # return None
+
 
         # self._conv_map_to_world(x_map, y_map)
         # self._conv_world_to_map(x_world, y_world)
