@@ -56,39 +56,29 @@ class MyRobotSlam(RobotAbstract):
         """
         self.counter += 1
 
-        # self.tiny_slam.compute()
-        # self.tiny_slam.update_map(self.lidar(), self.odometer_values())
-
-
-        # if self.counter == 0:
-        #     self.tiny_slam.update_map(self.lidar(), self.odometer_values())
-        # else:
-        bestScore = self.tiny_slam.localise((self.lidar()), self.odometer_values())
-
-        if bestScore > SCORE_MIN:
-            # self.tiny_slam.update_map(self.lidar(), self.corrected_pose)
-            # self.tiny_slam.update_map(self.lidar(), self.corrected_pose)
-            self.tiny_slam.update_map(self.lidar(), self.tiny_slam.get_corrected_pose(self.odometer_values()))
-        else:
+        # initialize occupancy map
+        if self.counter <= 10:
             self.tiny_slam.update_map(self.lidar(), self.odometer_values())
 
+        # search best reference correction
+        score = self.tiny_slam.localise((self.lidar()), self.odometer_values())
+
+        # update occupancy map only with corrected reference is good enough
+        if score > SCORE_MIN:
+            self.tiny_slam.update_map(self.lidar(), self.odometer_values()+self.corrected_pose)
+            # self.tiny_slam.update_map(self.lidar(), self.corrected_pose)
+
+        # display occupancy map within a certain frequency
         if self.counter % 1 == 0:
+            # self.tiny_slam.display(self.odometer_values())
             self.tiny_slam.display2(self.odometer_values())
 
-        # Compute new command speed to perform obstacle avoidance
+        # compute new command speed to perform obstacle avoidance
         isReactive = False
 
         if isReactive is True:
             command = reactive_obst_avoid(self.lidar())
         else:
             command = potential_field_control(self.lidar(), self.odometer_values(), np.array([-100.0, -400.0, 0]))
-
-        # studying score behavior to determine it's threshold
-        # print(f"score: {bestScore:+.4e}")
-        # self.array_score.append(bestScore)
-        # if self.counter % 24 == 0:
-        #     print(f'score mean: {np.mean(self.array_score):4.4f} {np.max(self.array_score):4.4f} {np.min(self.array_score):4.4f}')
-        #     self.array_score = []
-        # this is only needed during setup, afterwards the lines can be commented
 
         return command
