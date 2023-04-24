@@ -145,8 +145,10 @@ class TinySlam:
         angle_0 = pose[2]
 
         # get lidar values with obstacules, odometer referencial
-        xObs = distances[isObstacule] * np.cos(angles[isObstacule] + angle_0) + x_0
-        yObs = distances[isObstacule] * np.sin(angles[isObstacule] + angle_0) + y_0
+        # distances[isObstacule] only gives the values of distances where isObstacule is true
+        # therefore it only calculates for the needed values
+        xObs = x_0 + distances[isObstacule] * np.cos(angles[isObstacule] + angle_0)
+        yObs = y_0 + distances[isObstacule] * np.sin(angles[isObstacule] + angle_0)
 
         # get coordenates in the map reference
         xObsMap, yObsMap = self._conv_world_to_map(xObs, yObs)
