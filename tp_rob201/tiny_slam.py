@@ -241,6 +241,7 @@ class TinySlam:
         # search for a better score by random variations
         i = 0
         N = 1e2
+        # try to find a better score in N tries
         # execution with N bigger makes system slower
         while i < N:
             # random value following a gaussien distribution
@@ -256,11 +257,18 @@ class TinySlam:
             odomOffset = self.get_corrected_pose(odom, newRef)
             offsetScore = self.score(lidar, odomOffset)
 
+            # if a new score is found, reset tries
             if offsetScore > bestScore:
+                i = 0
+
                 bestScore = offsetScore
                 bestRef = newRef
+            # keep searching
+            else:
+                i += 1
 
-            i += 1
+        # saving best reference found
+        self.odom_pose_ref = bestRef
 
         return bestScore
 
