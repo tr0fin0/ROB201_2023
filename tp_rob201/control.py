@@ -4,10 +4,6 @@ import numpy as np
 import random
 
 
-DST_SAFE = 175
-DST_LIM = 100
-DST_MIN = 25
-
 def reactiveFront(lidar, minClearance: float):
     distances = lidar.get_sensor_values()   # distance in cm
     frontIndex = 180
@@ -89,24 +85,23 @@ def potential_field_control(lidar, pose, goal):
     goal : [x, y, theta] nparray, target pose in odom or world frame
     """
 
+    DST_SAFE = 175
+    DST_LIM = 85
+    DST_MIN = 50
+
     # * TP2
-    atr_K = 1
-    atr_diff = goal[:2] - pose[:2]
-    atr_dist = np.sqrt(atr_diff[0]**2 + atr_diff[1]**2)
+    # ! attractive potential
+    att_const = 1
+    att_difference = goal[:2] - pose[:2]
+    atr_distance = np.sqrt(att_difference[0]**2 + att_difference[1]**2)
 
-    # if atr_dist > DST_LIM:
-    #     atr_dF = atr_K * atr_diff / atr_dist
-
-    if atr_dist > DST_MIN:
-        atr_dF = atr_K * atr_diff / DST_LIM
-
-    else:
-        command = {"forward": 0, "rotation": 0}
-        return command
-
-    atr_mag = np.sqrt(atr_dF[0]**2 + atr_dF[1]**2)
+    potential_attractive = [0, 0]
+    if atr_distance > DST_MIN:
+        potential_attractive = att_const * att_difference / DST_LIM
 
 
+    # ! repulsive potential
+    # reading lidar data
     distances = lidar.get_sensor_values()   # 
     angles = lidar.get_ray_angles()         # angles in radiums
 
@@ -114,50 +109,50 @@ def potential_field_control(lidar, pose, goal):
     isDangerous = distances < DST_SAFE
 
     # create array of dangerous values
-    dstDanger = distances[isDangerous]
-    angDanger = angles[isDangerous]
+    danger_distances = distances[isDangerous]
+    danger_angles    = angles[isDangerous]
 
-    if len(dstDanger) != 0:
-        # get the closest obstacule values that is dangerous
+    potential_repulsive = [0, 0]
+    # checking for obstacules
+    if len(danger_distances) != 0:
+        # found, get the closest one
+        min_index = np.argmin(danger_distances)
 
-        minDst = np.min(dstDanger)
-        minIdx = np.argmin(dstDanger)
-        minAng = angDanger[minIdx]
+        min_distance = np.min(danger_distances)
+        min_angle = danger_angles[min_index]
 
         x_0 = pose[0]
         y_0 = pose[1]
         angle_0 = pose[2]
 
-        obst = []
-        obst.append(minDst * np.cos(minAng + angle_0) + x_0)
-        obst.append(minDst * np.sin(minAng + angle_0) + y_0)
+        obstacule = []
+        obstacule.append(min_distance * np.cos(min_angle + angle_0) + x_0)
+        obstacule.append(min_distance * np.sin(min_angle + angle_0) + y_0)
+
+        repulsive_const = 0.9e6
+        repulsive_diff = obstacule[:2] - pose[:2]
+        repulsive_dist = np.sqrt(repulsive_diff[0]**2 + repulsive_diff[1]**2)
+
+        if atr_distance > DST_MIN:
+            if repulsive_dist <= DST_SAFE:
+                potential_repulsive = repulsive_const / (repulsive_dist**3) * repulsive_diff * (1/repulsive_dist - 1/DST_SAFE)
+
+
+    # ! resulting potential
+    magnitude_attractive = np.sqrt(potential_attractive[0]**2 + potential_attractive[1]**2)
+    magnitude_repulsive = np.sqrt(potential_repulsive[0]**2 + potential_repulsive[1]**2)
+
+    if magnitude_attractive == 0 and magnitude_repulsive == 0:
+        command = {"forward": 0, "rotation": 0}
+
     else:
-        # no obstacule found
-        obst = [0, 0]
+        potential = (potential_attractive - potential_repulsive) / (magnitude_attractive + magnitude_repulsive)
+        magnitude = np.sqrt(potential[0]**2 + potential[1]**2)
+        angle = (np.arctan2(potential[1], potential[0]) - pose[2]) / (2*np.pi)
 
-    rep_K = 0.45e6
-    rep_diff = obst[:2] - pose[:2]
-    rep_dist = np.sqrt(rep_diff[0]**2 + rep_diff[1]**2)
+        forward  = 0.225 * magnitude
+        rotation = 1.000 * angle
 
-    # if rep_dist > DST_LIM:
-    if rep_dist <= DST_SAFE:
-        rep_dF = rep_K / (rep_dist**3) * rep_diff * (1/rep_dist - 1/DST_SAFE)
-
-    else:
-        rep_dF = [0, 0]
-
-    # rep_dF = (rep_dF - np.min(rep_dF)) / (np.max(rep_dF) - np.min(rep_dF))
-
-    # rep_dF = np.linalg.norm(rep_dF)
-    rep_mag = np.sqrt(rep_dF[0]**2 + rep_dF[1]**2)
-
-    dF = (atr_dF - rep_dF) / (atr_mag + rep_mag)
-    mag = np.sqrt(dF[0]**2 + dF[1]**2)
-    ang = (np.arctan2(dF[1], dF[0]) - pose[2]) / (2*np.pi)
-
-    forward  = 0.275*mag
-    rotation = 1.000*ang
-
-    command = {"forward": forward, "rotation": rotation}
+        command = {"forward": forward, "rotation": rotation}
 
     return command
