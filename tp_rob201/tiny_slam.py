@@ -283,8 +283,11 @@ class TinySlam:
         distances = lidar.get_sensor_values()   # 
         angles = lidar.get_ray_angles()         # angles in radiums
 
+        # define threshold for border values
+        border = 20
+
         # get array of bool's where the lidar found obstacules
-        isObstacule = distances < lidar.max_range
+        isObstacule = distances <= (lidar.max_range - border)
 
         # get robot's position, odometer referencial (robot's initial position)
         x_0 = pose[0]
