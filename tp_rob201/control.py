@@ -69,7 +69,6 @@ def wallFollow(lidar):
 
 
     index_right = 90    # index on the distances array of the right side measure
-    index_front = 180   # index on the distances array of the front side measure
     clearance_wall = 15 # minimal clearance
 
     # search wall
@@ -81,42 +80,14 @@ def wallFollow(lidar):
         if abs(error_angle) >= 0.025:
             # error_angle of 0.042 implies +-15 degrees deviation
             # error_angle of 0.025 implies +- 9 degrees deviation
-            # rotation += 7.50 * error_angle
             rotation += +1.00 * error_angle
-            # forward  += -1.00 * error_angle
-            # print(f'ang:  {error_angle:4.4f}')
-        # else:
-        #     rotation += +0.00 * error_angle
-        #     # forward  += +0.75 * error_angle
 
 
         # correct wall clearance
         error_distance = 0.125* (clearance_wall - min_distance)/clearance_wall
         if abs(error_distance) >= 0.020:
-            # print(f'dist: {error_distance:4.4f}')
             rotation += 1.00 * error_distance
-            # forward  -= 0.35 * error_angle
-        # else:
-        #     # no corrections needed, increase velocity
-        #     rotation += +0.00 * error_distance
-        #     # forward += 0.05
 
-        # distance_front = distances[index_front]
-
-        # # linear model:
-        # c0 =  2.500 #   c0: clearance wall min
-        # c1 = 10.000 #   c1: clearance wall max
-        # c2 =  0.000 #   c2: gain forward min
-        # c3 =  0.075 #   c3: gain forward max
-
-        # a = (c2 - c3) / (clearance_wall * (c0 - c1))
-        # b = c3 - c1 * (c2 - c3) / (c0 - c1)
-
-        # if distance_front >= clearance_wall:
-        #     gain_forward = a * distance_front - b
-        #     print(f'forw: {gain_forward:4.4f}')
-
-        #     forward += min(gain_forward, 0.1)
 
     else:
         # no wall found, explore
@@ -130,13 +101,6 @@ def wallFollow(lidar):
 
     return command
 
-        else:
-            error = (distL - targetClearance) / distL
-
-            angle = +0.5 * error
-            # print(f'a: {angle} e: {error}')
-
-            return {"forward": +0.125, "rotation": angle}
 
 
 def reactive_obst_avoid(lidar):
