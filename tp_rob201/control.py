@@ -112,8 +112,8 @@ def reactive_obst_avoid(lidar):
 
     minClearance = 50.0
     # return reactiveFront(lidar, minClearance)
-    return reactiveRange(lidar, minClearance)
-    # return reactiveWallFollow(lidar, minClearance)
+    # return reactiveRange(lidar, minClearance)
+    return wallFollow(lidar)
 
 
 def potential_field_control(lidar, pose, goal):
