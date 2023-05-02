@@ -57,16 +57,17 @@ class MyRobotSlam(RobotAbstract):
         self.counter += 1
 
         # initialize occupancy map
-        if self.counter <= 10:
+        if self.counter <= 30:
             self.tiny_slam.update_map(self.lidar(), self.odometer_values())
 
-        # search best reference correction
-        score = self.tiny_slam.localise((self.lidar()), self.odometer_values())
+        else:
+            # search best reference correction
+            score = self.tiny_slam.localise((self.lidar()), self.odometer_values())
 
-        # update occupancy map only with corrected reference is good enough
-        if score > SCORE_MIN:
-            self.tiny_slam.update_map(self.lidar(), self.odometer_values()+self.corrected_pose)
-            # self.tiny_slam.update_map(self.lidar(), self.corrected_pose)
+            # update occupancy map only with corrected reference is good enough
+            if score > SCORE_MIN:
+                self.tiny_slam.update_map(self.lidar(), self.odometer_values()+self.corrected_pose)
+                # self.tiny_slam.update_map(self.lidar(), self.corrected_pose)
 
         # display occupancy map within a certain frequency
         if self.counter % 1 == 0:
