@@ -95,6 +95,14 @@ def wallFollow(lidar):
         # no wall found, explore
         forward += min_distance / max(distances)
 
+
+    # increase speed if angle is stable
+    if abs(rotation) <= 0.020:
+        forward += 0.045
+
+    # neither forward or rotation command shaw be big because it will
+    # reduce the map quality and therefore the efficiency of other algorithms
+
     # limiting command values
     forward_limited = max(min(forward, +1), -1)
     rotation_limited = max(min(rotation, +1), -1)
