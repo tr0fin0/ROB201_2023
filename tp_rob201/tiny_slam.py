@@ -240,7 +240,7 @@ class TinySlam:
 
         # search for a better score by random variations
         i = 0
-        N = 1e2
+        N = 1.25e2
         # try to find a better score in N tries
         # execution with N bigger makes system slower
         while i < N:
@@ -250,7 +250,7 @@ class TinySlam:
             offset = []
             offset.append(np.random.normal(0.0, 5))
             offset.append(np.random.normal(0.0, 5))
-            offset.append(np.random.normal(0.0, 0.1))
+            offset.append(np.random.normal(0.0, 0.15))
             newRef = bestRef + offset
 
             # add offset to reference
