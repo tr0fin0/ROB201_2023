@@ -34,7 +34,6 @@ def reactiveRange(lidar, minClearance: float):
 
 def wallFollow(lidar):
     distances = lidar.get_sensor_values()   # distance in cm
-    angles = lidar.get_ray_angles()   # distance in cm
 
     # we consider the following references:
 
