@@ -324,23 +324,27 @@ class TinySlam:
 
 
     def get_neighbors(self, current):
-        # get k closests neighbors in the map
+        """
+        get the 8 neighbors of a point in the map
+        current : point in the map
+        """
 
-        mapMatrix = self.occupancy_map
+        x, y = current
+        neighbors = []
 
-        k = 8 # number of closests neighbors
-        indices = np.argpartition(mapMatrix.ravel(), k)[:k]
+        for i in [-1, 0, +1]:
+            for j in [-1, 0, +1]:
+                if i == 0 and j == 0:
+                    continue
 
-        # getting neighbors indexes
-        x, y = np.unravel_index(indices, mapMatrix.shape)
+                new_x, new_y = x+i, y+j
+                if (new_x < 0 or new_x >= self.x_max_map or
+                    new_y < 0 or new_y >= self.y_max_map):
+                    continue
 
-        # # alternative with heapq
-        # mapArray = [(mapMatrix[i, j], i, j) for i in range(mapMatrix.shape[0]) for j in range(mapMatrix.shape[1])]
+                neighbors.append((new_x, new_y))
 
-        # # get the k smallest elements and their indices
-        # closestNeighbors = heapq.nsmallest(k, mapArray, key=lambda x: x[0])
-
-        return x, y
+        return neighbors
 
 
     def heuristic(self, a, b):
