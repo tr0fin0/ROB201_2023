@@ -309,6 +309,19 @@ class TinySlam:
         self.occupancy_map[self.occupancy_map >= OCCUPANCY_MAX] = OCCUPANCY_MAX
         self.occupancy_map[self.occupancy_map <  OCCUPANCY_MIN] = OCCUPANCY_MIN
 
+    def read_map(self, map_csv: str) -> None:
+        """
+        read Bayesian map from csv file
+        map_csv : path to saved map as csv
+        """
+
+        try:
+            self.occupancy_map = np.genfromtxt(map_csv, delimiter=',')
+        except IOError:
+            print(f'error: file {map_csv} not found')
+
+        return None
+
 
     def get_neighbors(self, current):
         # get k closests neighbors in the map
