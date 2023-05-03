@@ -302,17 +302,7 @@ class TinySlam:
         self.add_map_points(x[isObstacule], y[isObstacule], +0.35)  # modèle simple
 
         # decrease points values, free path
-        border = 20
         for x, y in zip(x, y):
-            if x > 0:
-                x = x - border
-            else:
-                x = x + border
-
-            if y > 0:
-                y = y - border
-            else:
-                y = y + border
             self.add_map_line(x_0, y_0, x, y, -0.10)
 
         # set upper and lower limit of point's value
