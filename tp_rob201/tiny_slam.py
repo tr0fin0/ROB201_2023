@@ -349,11 +349,11 @@ class TinySlam:
 
     def heuristic(self, a, b):
         # unfolding coordinates
-        x_odom, y_odom = a
-        x1, y1 = b
+        x_a, y_a = a
+        x_b, y_b = b
 
-        # euclidian distance
-        return np.sqrt( (x1 - x_odom)**2 + (y1 - y_odom)**2 )
+        # euclidean distance
+        return np.sqrt( (x_b - x_a)**2 + (y_b - y_a)**2 )
 
 
     def plan(self, start, goal):
