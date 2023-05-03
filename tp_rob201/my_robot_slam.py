@@ -61,54 +61,82 @@ class MyRobotSlam(RobotAbstract):
         """
         Main control function executed at each time step
         """
-        self.counter += 1
-        # print(f'{self.counter}')
 
-        # declare default command
+        # ! setup
+        # default command
         command = {"forward": 0, "rotation": 0}
 
-        # change behavior for A* algorithm
-        cartography_limit = 32500
 
-        if self.counter < cartography_limit:
+        # save robot origin
+        if self.counter == 0:
+            self.corrected_pose = self.odometer_values()
+
+            if self.explore is False:
+                # self.tiny_slam.read_map('./tp_rob201/maps/occupancy_map_2023-05-03_09-45-43.csv')
+                self.tiny_slam.read_map('./tp_rob201/maps/occupancy_map_2023-05-03_10-01-46.csv')
+
+
+        # ! exploration
+        if self.explore is True:
             # explore map to create a cartography
+            if self.counter < self.explore_counter_limit:
 
-            # initialize occupancy map
-            if self.counter <= 30:
-                # use robot odometer without any correction
-                self.tiny_slam.update_map(self.lidar(), self.odometer_values())
+                # initialize occupancy map
+                if self.counter <= 30:
+                    # use robot odometer without any correction
+                    self.tiny_slam.update_map(self.lidar(), self.odometer_values())
 
-            else:
-                # search best reference correction
-                score = self.tiny_slam.localise((self.lidar()), self.odometer_values())
+                else:
+                    # search best reference correction
+                    score = self.tiny_slam.localise((self.lidar()), self.odometer_values())
 
-                # update occupancy map only with corrected reference is good enough
-                if score > SCORE_MIN:
-                    self.tiny_slam.update_map(self.lidar(), self.odometer_values()+self.corrected_pose)
+                    # update occupancy map only with corrected reference is good enough
+                    if score > SCORE_MIN:
+                        self.tiny_slam.update_map(self.lidar(), self.odometer_values())
 
-            # compute new command speed to perform obstacle avoidance
-            isReactive = True
 
-            if isReactive is True:
-                command = reactive_obst_avoid(self.lidar())
-            else:
-                command = potential_field_control(self.lidar(), self.odometer_values(), np.array([-100.0, -400.0, 0]))
+                if self.command_choice == 'reactive':
+                    command = reactive_obst_avoid(self.lidar())
+                else:
+                    command = potential_field_control(self.lidar(), self.odometer_values(), np.array([-100.0, -400.0, 0]))
 
-        elif self.counter == cartography_limit:
-            # save occupancy map
-            occupancy_map = self.tiny_slam.occupancy_map
+            elif self.counter == self.explore_counter_limit:
+                if self.save_map is True:
+                    # save occupancy map
+                    occupancy_map = self.tiny_slam.occupancy_map
 
-            now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            save_path = './tp_rob201/maps/'
+                    now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                    save_path = './tp_rob201/maps/'
 
-            np.savetxt(f'{save_path}occupancy_map_{now}.csv', occupancy_map, delimiter=',')
+                    np.savetxt(f'{save_path}occupancy_map_{now}.csv', occupancy_map, delimiter=',')
 
-        else:
-            print(f'A*')
 
+        # ! planinning
+        # from the actual position plan the best way to the start position
+        goal = self.corrected_pose[:2].tolist()
+        start = self.odometer_values()[:2].tolist()
+
+        # planinning trajectory
+        tmp_counter = 750
+        if self.path is None and self.counter > tmp_counter:
+            self.path = self.tiny_slam.plan(start, goal)
+            # tmp = self.tiny_slam.get_corrected_pose(self.odometer_values())
+            # print(self.tiny_slam._conv_world_to_map(tmp[0], tmp[1]))
+            print(start, goal)
+            print(self.path)
+
+        if self.counter <= tmp_counter:
+            command = reactive_obst_avoid(self.lidar())
+
+
+        # ! update 
         # display occupancy map within a certain frequency
         if self.counter % 1 == 0:
+            # self.tiny_slam.display(self.odometer_values())
             self.tiny_slam.display2(self.odometer_values())
 
+        # increase counter
+        self.counter += 1
+        # print(f'{self.counter}')
 
         return command
