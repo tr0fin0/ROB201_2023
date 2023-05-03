@@ -19,7 +19,7 @@ from control import reactive_obst_avoid
 from control import potential_field_control
 
 
-SCORE_MIN = +150
+SCORE_MIN = +50
 
 
 # Definition of our robot controller
