@@ -84,12 +84,10 @@ def wallFollow(lidar):
             # error_angle of 0.025 implies +- 9 degrees deviation
             rotation += +1.00 * error_angle
 
-
         # correct wall clearance
         error_distance = 0.125* (clearance_wall - min_distance)/clearance_wall
         if abs(error_distance) >= 0.020:
             rotation += 1.00 * error_distance
-
 
     else:
         # no wall found, explore
@@ -104,7 +102,7 @@ def wallFollow(lidar):
     # reduce the map quality and therefore the efficiency of other algorithms
 
     # limiting command values
-    forward_limited = max(min(forward, +1), -1)
+    forward_limited  = max(min(forward,  +1), -1)
     rotation_limited = max(min(rotation, +1), -1)
 
     command = {"forward": forward_limited, "rotation": rotation_limited}
