@@ -362,44 +362,86 @@ class TinySlam:
         start : [x, y, theta] nparray, start pose in world coordinates
         goal : [x, y, theta] nparray, goal pose in world coordinates
         """
-        # initialize the open and closed sets
-        # start_node = (start_x, start_y)
-        # start_index = (np.ravel_multi_index(start_node, shape=graph.shape))
 
-        # open_set = [start_index]
-        # closed_set = set()
+        # convert from world to map coordinates
+        start = self._conv_world_to_map(start[0], start[1])
+        goal  = self._conv_world_to_map(goal[0], goal[1])
 
-        # # initialize the path dictionary
-        # path = {start: None}
+        # print(f'start: {start} goal: {goal}')
 
-        # # initialize the cost dictionary
-        # cost = {start: 0}
+        # heapq initialization
+        priority_heap = [(0, start)]
+        visited_nodes = set()
 
-        # # loop until the open set is empty
-        # while open_set:
-        #     # get the node with the smallest f-score from the open set
-        #     current_cost, current_node = heapq.heappop(open_set)
+        # 
+        parent_nodes = {start: None}
 
-        #     # if goal is reached
-        #     if current_node == goal:
-        #         path_list = []
+        # scores dictionaries
+        g_values = {start: 0}
+        f_values = {start: self.heuristic(start, goal)}
 
-        #         while current_node:
-        #             path_list.append(current_node)
-        #             current_node = path[current_node]
-                
-        #         path_list.reverse()
+        # print('plan')
+# 
+        # loop util heap is empty, meaning: no path found or goal found
+        while priority_heap:
+            # print('while')
+            # pop node with smallest f value
+            _, current_node = heapq.heappop(priority_heap)
 
-        #         return path_list
+            # print(f'current_node: {current_node}')
 
-        #     # add the current node to closed set
-        #     closed_set.add(current_node)
+            # if goal was found, reconstruct path and return it
+            if current_node == goal:
+                path = []
 
-        #     # loop through the neighbors of the current node
-        #     for neighbor in graph[current_node]:
-        #         # if neighbor is in the closed set, skip it
-        #         if neighbor in closed_set:
-        #             continue
+                while current_node is not None:
+                    # print('path')
+                    path.append(current_node)
+                    current_node = parent_nodes[current_node]
+
+                # return reverse path
+                return path[::-1]
+
+            # goal not found, store current node as visited and continue searching
+            visited_nodes.add(current_node)
+
+            neighbors = self.get_neighbors(current_node)
+            # print(f'neighbors: {neighbors}')
+
+            # loop through possible movements
+            for neighbor in neighbors:
+                # print(f'neighbor: {neighbor}')
+                # print('neighbor')
+
+                x_valid = 0 <= neighbor[0] < self.x_max_map
+                y_valid = 0 <= neighbor[1] < self.y_max_map
+                notObstacule = self.occupancy_map[neighbor[0]][neighbor[1]] < 0.75*OCCUPANCY_MAX
+
+                print(f'{x_valid} {y_valid} {notObstacule}')
+
+                # check if neighbor is inside bounders and is not an obstacle
+                if x_valid and y_valid and notObstacule:
+                    # compute neighbor's g value
+                    tentative_g_value = g_values[current_node] + self.heuristic(current_node, neighbor)
+
+                    # print(f'tentative_g_value: {tentative_g_value}')
+                    # print(f'visited_nodes: {visited_nodes}')
+                    # print(f'g_values: {g_values.get(neighbor, 0)}')
+
+                    # 
+                    if neighbor in visited_nodes and tentative_g_value >= g_values.get(neighbor, 0):
+                        continue
+
+                    parent_nodes[neighbor] = current_node
+                    g_values[neighbor] = tentative_g_value
+                    f_values[neighbor] = tentative_g_value + self.heuristic(neighbor, goal)
+
+                    heapq.heappush(priority_heap, (f_values[neighbor], neighbor))
+
+            # break
+
+        # if heap is empty and no path was found
+        return None
 
         #         # calculate the tentative cost to reach the neighbor
         #         tentative_cost = cost[current_node] + 1
