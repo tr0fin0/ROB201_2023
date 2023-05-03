@@ -8,6 +8,7 @@ origin in orange part:
     theta: zero pointing frontwards
 """
 import numpy as np
+import datetime
 
 from place_bot.entities.robot_abstract import RobotAbstract
 from place_bot.entities.odometer import OdometerParams
