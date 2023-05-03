@@ -42,10 +42,10 @@ class MyRobotSlam(RobotAbstract):
 
         # Init SLAM object
         self._size_area = (800, 800)
-        self.tiny_slam = TinySlam(x_min=- self._size_area[0],
-                                  x_max=self._size_area[0],
-                                  y_min=- self._size_area[1],
-                                  y_max=self._size_area[1],
+        self.tiny_slam = TinySlam(x_min= -self._size_area[0],
+                                  x_max= +self._size_area[0],
+                                  y_min= -self._size_area[1],
+                                  y_max= +self._size_area[1],
                                   resolution=2)
 
         # storage for pose after localization
