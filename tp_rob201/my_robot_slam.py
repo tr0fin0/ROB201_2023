@@ -51,6 +51,12 @@ class MyRobotSlam(RobotAbstract):
         # storage for pose after localization
         self.corrected_pose = np.array([0, 0, 0])
 
+        self.command_choice = 'reactive'
+        self.save_map = False
+        self.explore = False
+        self.explore_counter_limit = 35000
+        self.path = None
+
     def control(self):
         """
         Main control function executed at each time step
