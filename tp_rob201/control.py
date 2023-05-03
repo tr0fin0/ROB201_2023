@@ -66,6 +66,9 @@ def wallFollow(lidar):
     forward = 0.025
     rotation = 0
 
+    # first the algorithm will correct the robot position, in a rather slow background
+    # forward command and then, when the robot is well positioned in space, it will
+    # increase it's velocity so it can explorer quickly
 
     index_right = 90    # index on the distances array of the right side measure
     clearance_wall = 15 # minimal clearance
