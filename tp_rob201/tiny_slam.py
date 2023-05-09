@@ -307,7 +307,7 @@ class TinySlam:
 
         # set upper and lower limit of point's value
         self.occupancy_map[self.occupancy_map >= OCCUPANCY_MAX] = OCCUPANCY_MAX
-        self.occupancy_map[self.occupancy_map <  OCCUPANCY_MIN] = OCCUPANCY_MIN
+        self.occupancy_map[self.occupancy_map <= OCCUPANCY_MIN] = OCCUPANCY_MIN
 
     def read_map(self, map_csv: str) -> None:
         """
