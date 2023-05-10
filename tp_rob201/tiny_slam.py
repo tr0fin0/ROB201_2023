@@ -486,7 +486,8 @@ class TinySlam:
         # plt.show()
         plt.pause(0.001)
 
-    def display2(self, robot_pose):
+
+    def display2(self, robot_pose, path_original = None):
         """
         Screen display of map and robot pose,
         using opencv (faster than the matplotlib version)
@@ -501,6 +502,7 @@ class TinySlam:
 
         pt2_x = robot_pose[0] + np.cos(robot_pose[2]) * 20
         pt2_y = robot_pose[1] + np.sin(robot_pose[2]) * 20
+        # attention to the y signal
         pt2_x, pt2_y = self._conv_world_to_map(pt2_x, -pt2_y)
 
         pt1_x, pt1_y = self._conv_world_to_map(robot_pose[0], -robot_pose[1])
@@ -513,8 +515,29 @@ class TinySlam:
                         pt2=pt2,
                         color=(0, 0, 255),
                         thickness=2)
+
+        # add return path
+        if path_original is not None:
+            color = (255, 255, 255)
+
+            # correction for printing
+            path_corrected = []
+            for x, y in path_original:
+                x_corr, y_corr = self._conv_map_to_world(x,y)
+
+                path_corrected.append((self._conv_world_to_map(x_corr,-y_corr)))
+
+            for node in range(len(path_corrected)-1):
+                cv2.line(img2, path_corrected[node], path_corrected[node+1], color, 1)
+
+            # we note that this function is initialized with the function cv2.flip
+            # that inverts one of it's coordinates.
+
+            # therefore the world variables with have a negative y correspondence in the map.
+
         cv2.imshow("map slam", img2)
         cv2.waitKey(1)
+
 
     def save(self, filename):
         """
