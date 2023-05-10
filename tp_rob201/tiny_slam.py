@@ -239,7 +239,7 @@ class TinySlam:
 
         # initialize score with the reference position
         bestScore = self.score(lidar, odom)
-        bestRef = odom
+        bestRef = self.odom_pose_ref
 
         # search for a better score by random variations
         i = 0
