@@ -98,11 +98,22 @@ class MyRobotSlam(RobotAbstract):
                     if score > SCORE_MIN:
                         self.tiny_slam.update_map(self.lidar(), self.odometer_values())
 
+                # * command choice
+                if self.counter > 75:
 
-                if self.command_choice == 'reactive':
-                    command = reactive_obst_avoid(self.lidar())
-                else:
-                    command = potential_field_control(self.lidar(), self.odometer_values(), np.array([-100.0, -400.0, 0]))
+                    match self.command_choice:
+                        case 'reactive':
+                            command = reactive_obst_avoid(self.lidar())
+
+                        case 'potential_field':
+                            command = potential_field_control(self.lidar(), self.odometer_values(), np.array([-100.0, -400.0, 0]))
+
+                        case 'wall_follow':
+                            command = wall_follow(self.lidar())
+
+                        case _:
+                            command = {"forward": 0, "rotation": 0}
+
 
             elif self.counter == self.explore_counter_limit:
                 if self.save_map is True:
