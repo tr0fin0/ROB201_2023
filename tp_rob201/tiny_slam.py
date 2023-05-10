@@ -394,82 +394,61 @@ class TinySlam:
                                 occupancy_map_expanded[x-i][y+j] = OCCUPANCY_MAX
 
 
+        # ! A* algorithm
         # convert from world to map coordinates
         start = self._conv_world_to_map(start[0], start[1])
         goal  = self._conv_world_to_map(goal[0], goal[1])
 
-        # print(f'start: {start} goal: {goal}')
-
         # heapq initialization
-        priority_heap = [(0, start)]
-        visited_nodes = set()
+        priority_heap = []
+        heapq.heappush(priority_heap, (0, start))
 
-        # 
-        parent_nodes = {start: None}
+        # dictionary to retrace the path
+        parent_nodes = {}
 
         # scores dictionaries
-        g_values = {start: 0}
-        f_values = {start: self.heuristic(start, goal)}
+        g_scores = defaultdict(lambda: math.inf)
+        g_scores[start] = 0
+        f_scores = defaultdict(lambda: math.inf)
+        f_scores[start] = self.heuristic(start, goal)
 
-        # print('plan')
-# 
         # loop util heap is empty, meaning: no path found or goal found
         while priority_heap:
-            # print('while')
             # pop node with smallest f value
             _, current_node = heapq.heappop(priority_heap)
 
-            # print(f'current_node: {current_node}')
-
-            # if goal was found, reconstruct path and return it
+            # * path reconstruction, goal was found
             if current_node == goal:
-                path = []
+                path = [current_node]
 
-                while current_node is not None:
-                    # print('path')
-                    path.append(current_node)
+                while current_node in parent_nodes.keys():
                     current_node = parent_nodes[current_node]
+                    path.insert(0, current_node)
 
                 # return reverse path
                 return path[::-1]
+                # return path
 
-            # goal not found, store current node as visited and continue searching
-            visited_nodes.add(current_node)
 
             neighbors = self.get_neighbors(current_node)
-            # print(f'neighbors: {neighbors}')
 
             # loop through possible movements
             for neighbor in neighbors:
-                # print(f'neighbor: {neighbor}')
-                # print('neighbor')
 
-                x_valid = 0 <= neighbor[0] < self.x_max_map
-                y_valid = 0 <= neighbor[1] < self.y_max_map
-                notObstacule = self.occupancy_map[neighbor[0]][neighbor[1]] < 0.75*OCCUPANCY_MAX
+                # check neighbor is not an obstacule
+                isAvaliable = occupancy_map_expanded[neighbor[0]][neighbor[1]] == OCCUPANCY_MIN
 
-                print(f'{x_valid} {y_valid} {notObstacule}')
-
-                # check if neighbor is inside bounders and is not an obstacle
-                if x_valid and y_valid and notObstacule:
+                if isAvaliable:
                     # compute neighbor's g value
-                    tentative_g_value = g_values[current_node] + self.heuristic(current_node, neighbor)
+                    tentative_g_score = g_scores[current_node] + self.heuristic(current_node, neighbor)
 
-                    # print(f'tentative_g_value: {tentative_g_value}')
-                    # print(f'visited_nodes: {visited_nodes}')
-                    # print(f'g_values: {g_values.get(neighbor, 0)}')
+                    if tentative_g_score < g_scores[neighbor]:
+                        parent_nodes[neighbor] = current_node
+                        g_scores[neighbor] = tentative_g_score
+                        f_scores[neighbor] = tentative_g_score + self.heuristic(neighbor, goal)
 
-                    # 
-                    if neighbor in visited_nodes and tentative_g_value >= g_values.get(neighbor, 0):
-                        continue
-
-                    parent_nodes[neighbor] = current_node
-                    g_values[neighbor] = tentative_g_value
-                    f_values[neighbor] = tentative_g_value + self.heuristic(neighbor, goal)
-
-                    heapq.heappush(priority_heap, (f_values[neighbor], neighbor))
-
-            # break
+                        if neighbor not in priority_heap:
+                            heapq.heappush(priority_heap, (f_scores[neighbor], neighbor))
 
         # if heap is empty and no path was found
         return None
