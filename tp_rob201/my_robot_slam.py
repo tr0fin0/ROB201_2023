@@ -135,8 +135,28 @@ class MyRobotSlam(RobotAbstract):
             self.path = self.tiny_slam.plan(start, goal)
             self.path_return = self.path
 
-        if self.counter <= tmp_counter:
-            command = reactive_obst_avoid(self.lidar())
+
+        # ! return
+        # until arrive at the goal
+        if self.path_return:
+
+            # get current position
+            x_pos, y_pos, t_pos = self.tiny_slam.get_corrected_pose(self.odometer_values())
+            position = (x_pos, y_pos, t_pos)
+
+            # get next goal
+            x_map, y_map = self.path_return[0]
+            x_goal, y_goal = self.tiny_slam._conv_map_to_world(x_map, y_map)
+            goal = (x_goal, y_goal)
+
+            distance_goal = np.sqrt((x_pos - x_goal)**2 + (y_pos - y_goal)**2)
+
+
+            # if is already close enough, remove closest nodes
+            if distance_goal < 15:
+                self.path_return = self.path_return[10:]
+
+            command = potential_attraction(np.array(position), goal)
 
 
         # ! update 
