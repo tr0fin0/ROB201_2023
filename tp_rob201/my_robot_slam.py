@@ -128,17 +128,12 @@ class MyRobotSlam(RobotAbstract):
 
         # ! planinning
         # from the actual position plan the best way to the start position
-        goal = self.corrected_pose[:2].tolist()
-        start = self.odometer_values()[:2].tolist()
+        if self.path is None and self.counter > self.explore_counter_limit:
+            goal = self.corrected_pose[:2].tolist()
+            start = self.odometer_values()[:2].tolist()
 
-        # planinning trajectory
-        tmp_counter = 750
-        if self.path is None and self.counter > tmp_counter:
             self.path = self.tiny_slam.plan(start, goal)
-            # tmp = self.tiny_slam.get_corrected_pose(self.odometer_values())
-            # print(self.tiny_slam._conv_world_to_map(tmp[0], tmp[1]))
-            print(start, goal)
-            print(self.path)
+            self.path_return = self.path
 
         if self.counter <= tmp_counter:
             command = reactive_obst_avoid(self.lidar())
