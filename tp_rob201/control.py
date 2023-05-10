@@ -4,6 +4,7 @@ import numpy as np
 import random
 
 
+
 def reactiveFront(lidar, minClearance: float):
     distances = lidar.get_sensor_values()   # distance in cm
     frontIndex = 180
@@ -17,6 +18,7 @@ def reactiveFront(lidar, minClearance: float):
 
 def distFOV(lidar, start: int, end: int):
     return np.mean(lidar.get_sensor_values()[start:end])
+
 
 
 def reactiveRange(lidar, minClearance: float):
