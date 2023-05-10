@@ -18,6 +18,8 @@ from tiny_slam import TinySlam
 
 from control import reactive_obst_avoid
 from control import potential_field_control
+from control import wall_follow
+from control import potential_attraction
 
 
 SCORE_MIN = +50
