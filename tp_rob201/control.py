@@ -32,7 +32,8 @@ def reactiveRange(lidar, minClearance: float):
         return {"forward": +0.00, "rotation": random.uniform(-1, +1)}
 
 
-def wallFollow(lidar):
+
+def wall_follow(lidar):
     distances = lidar.get_sensor_values()   # distance in cm
 
     # we consider the following references:
@@ -44,7 +45,7 @@ def wallFollow(lidar):
     #                        |
     #
     #                        _
-    # [180] (-pi/2) +y <--  |0|  ---> -y (+pi/2) [90]
+    # [270] (-pi/2) +y <--  |0|  ---> -y (+pi/2) [90]
     #
     #                        |
     # 
@@ -73,28 +74,28 @@ def wallFollow(lidar):
     index_right = 90    # index on the distances array of the right side measure
     clearance_wall = 15 # minimal clearance
 
-    # search wall
+    # ! search wall
     if min_distance < 2.5 * clearance_wall:
         # wall found, rotate until align right side
 
-        # correct right side alignment
+        #* correct right side alignment
         error_angle = 1.00 * (min_index - index_right)/360
         if abs(error_angle) >= 0.025:
             # error_angle of 0.042 implies +-15 degrees deviation
             # error_angle of 0.025 implies +- 9 degrees deviation
             rotation += +1.00 * error_angle
 
-        # correct wall clearance
-        error_distance = 0.125* (clearance_wall - min_distance)/clearance_wall
+        #* correct wall clearance
+        error_distance = -0.125 * (min_distance - clearance_wall)/clearance_wall
         if abs(error_distance) >= 0.020:
             rotation += 1.00 * error_distance
 
     else:
-        # no wall found, explore
+        # ! no wall found, explore
         forward += min_distance / max(distances)
 
 
-    # increase speed if angle is stable
+    # ! increase speed if angle is stable
     if abs(rotation) <= 0.020:
         forward += 0.045
 
