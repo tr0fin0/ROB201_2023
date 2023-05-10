@@ -337,15 +337,15 @@ class TinySlam:
 
         for i in [-1, 0, +1]:
             for j in [-1, 0, +1]:
-                if i == 0 and j == 0:
-                    continue
+                # if node is not current
+                if not(i == 0 and j == 0):
 
-                new_x, new_y = x+i, y+j
-                if (new_x < 0 or new_x >= self.x_max_map or
-                    new_y < 0 or new_y >= self.y_max_map):
-                    continue
+                    new_x, new_y = x+i, y+j
+                    # if node is inside map
+                    if (new_x >= 0 and new_x <= self.x_max_map and
+                        new_y >= 0 and new_y <= self.y_max_map):
 
-                neighbors.append((new_x, new_y))
+                        neighbors.append((new_x, new_y))
 
         return neighbors
 
