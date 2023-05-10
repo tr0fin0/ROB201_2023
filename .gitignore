@@ -62,4 +62,4 @@ MANIFEST
 .conda*/
 .python-version
 *.pdf
-*.png
+# *.png
