@@ -203,3 +203,47 @@ def potential_field_control(lidar, pose, goal):
         command = {"forward": forward, "rotation": rotation}
 
     return command
+
+
+
+def potential_attraction(position, goal):
+    """
+    Control using potential field for goal reaching and obstacle avoidance
+    position: [x, y, theta] nparray, current pose in odom or world frame
+    goal    : [x, y, theta] nparray, target pose in odom or world frame
+    """
+
+    DST_MIN = 25
+
+    # * TP2
+    # ! attractive potential
+    att_const = 1
+    att_difference = goal[:2] - position[:2]
+    atr_distance = np.sqrt(att_difference[0]**2 + att_difference[1]**2)
+
+    attraction = [0, 0]
+    if atr_distance > DST_MIN:
+        attraction = att_const * att_difference / atr_distance
+
+
+    # ! resulting potential
+    magnitude_attraction = np.sqrt(attraction[0]**2 + attraction[1]**2)
+
+    if magnitude_attraction == 0:
+        command = {"forward": 0, "rotation": 0}
+
+    else:
+        potential = attraction / magnitude_attraction
+        magnitude = np.sqrt(potential[0]**2 + potential[1]**2)
+        angle = (np.arctan2(potential[1], potential[0]) - position[2]) / (2*np.pi)
+
+        forward  = 0.065 * magnitude
+        rotation = 1.000 * angle
+
+        # limiting command values
+        forward_limited  = max(min(forward,  +1), -1)
+        rotation_limited = max(min(rotation, +1), -1)
+
+        command = {"forward": forward_limited, "rotation": rotation_limited}
+
+    return command
