@@ -85,14 +85,14 @@ class MyRobotSlam(RobotAbstract):
             # explore map to create a cartography
             if self.counter < self.explore_counter_limit:
 
-                # initialize occupancy map
-                if self.counter <= 30:
+                # * initialize occupancy map
+                if self.counter <= 50:
                     # use robot odometer without any correction
                     self.tiny_slam.update_map(self.lidar(), self.odometer_values())
 
                 else:
                     # search best reference correction
-                    score = self.tiny_slam.localise((self.lidar()), self.odometer_values())
+                    score = self.tiny_slam.localise(self.lidar(), self.odometer_values())
 
                     # update occupancy map only with corrected reference is good enough
                     if score > SCORE_MIN:
@@ -115,6 +115,7 @@ class MyRobotSlam(RobotAbstract):
                             command = {"forward": 0, "rotation": 0}
 
 
+            # * save map
             elif self.counter == self.explore_counter_limit:
                 if self.save_map is True:
                     # save occupancy map
@@ -159,13 +160,12 @@ class MyRobotSlam(RobotAbstract):
             command = potential_attraction(np.array(position), goal)
 
 
-        # ! update 
+        # ! update
         # display occupancy map within a certain frequency
         if self.counter % 1 == 0:
-            # self.tiny_slam.display(self.odometer_values())
-            self.tiny_slam.display2(self.odometer_values())
+            self.tiny_slam.display2(self.odometer_values(), self.path)
 
-        # increase counter
+        # ! increase counter
         self.counter += 1
         # print(f'{self.counter}')
 
