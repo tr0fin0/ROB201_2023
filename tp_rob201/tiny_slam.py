@@ -5,7 +5,10 @@ import pickle
 import cv2
 import numpy as np
 import heapq
+import math
 from matplotlib import pyplot as plt
+from collections import defaultdict
+
 
 OCCUPANCY_MAX = +1.0
 OCCUPANCY_MIN = -1.0
@@ -362,6 +365,34 @@ class TinySlam:
         start : [x, y, theta] nparray, start pose in world coordinates
         goal : [x, y, theta] nparray, goal pose in world coordinates
         """
+
+
+        # ! expand obstacules
+        # car is not pontual, a clearance distance from the wall is need
+        occupancy_map_expanded = self.occupancy_map.copy()
+
+        # define minimal wall clearance in map dimensions
+        wall_clearance = 8
+        # wall_clearance = 17
+
+        # check every point in the map
+        for x in range(self.x_max_map):
+            for y in range(self.y_max_map):
+                # if this point is not unknown and is not free
+                if (self.occupancy_map[x][y] != OCCUPANCY_MIN and
+                    self.occupancy_map[x][y] != 0):
+
+                    for i in range(wall_clearance):
+                        for j in range(wall_clearance):
+                            # check if points are inside map
+                            if (x+i < self.x_max_map and x-i >= 0 and 
+                                y+j < self.y_max_map and y-j >= 0):
+                                # expand all four graph quadrants
+                                occupancy_map_expanded[x+i][y+j] = OCCUPANCY_MAX
+                                occupancy_map_expanded[x+i][y-j] = OCCUPANCY_MAX
+                                occupancy_map_expanded[x-i][y-j] = OCCUPANCY_MAX
+                                occupancy_map_expanded[x-i][y+j] = OCCUPANCY_MAX
+
 
         # convert from world to map coordinates
         start = self._conv_world_to_map(start[0], start[1])
